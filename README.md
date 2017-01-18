@@ -1,6 +1,7 @@
 # raml-clj-parser
+[![Build Status](https://travis-ci.org/zacyang/raml-clj-parser.svg?branch=master)](https://travis-ci.org/zacyang/raml-clj-parser)
 
-A Clojure library designed to ... well, that part is up to you.
+A Clojure library designed to read raml file to clojure edn.
 
 ## Usage
 
