@@ -1,7 +1,12 @@
 (ns raml-clj-parser.reader
-  (:refer-clojure :excludes [read])
-  (:import [raml_clj_parser.yaml RamlIncludeTag])
+  (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ] :reload-all))
+
+(defrecord RamlIncludeTag [tag path])
+
+(defn include-tag-ctor-fn
+  [tag str-val]
+  (->RamlIncludeTag tag str-val))
 
 (defprotocol SnakeYamlReader
   (->clj [node]))
@@ -42,6 +47,5 @@
   (->clj [node] {:tag (:tag node) :path (:path node)}))
 
 (defn read [content]
-  (let [raw_yaml (yaml/load content)]
-    (prn "WTTTTTTF")
+  (let [raw_yaml (yaml/load content "!include" include-tag-ctor-fn)]
     (->clj raw_yaml)))

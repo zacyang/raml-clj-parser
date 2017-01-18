@@ -9,4 +9,5 @@
                  [org.yaml/snakeyaml "1.17"]]
 
   :profiles {:dev {:dependencies   [[midje "1.8.2"]]
-                   :resource-paths ["src/test/resources"]}})
+                   :resource-paths ["src/test/resources"]
+                   :plugins        [[lein-midje "3.2.1"]]}})

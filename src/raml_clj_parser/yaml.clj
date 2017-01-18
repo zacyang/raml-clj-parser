@@ -11,7 +11,6 @@
             ScalarNode
             Tag]))
 
-(defrecord RamlIncludeTag [tag path])
 
 (defn call-method
   [klass method-name params obj & args]
@@ -43,10 +42,5 @@
           constructor)
     result))
 
-(defn include-tag-ctor-fn
-  [tag str-val]
-  (println (str "Loading: " str-val))
-  (->RamlIncludeTag tag str-val))
-
-(defn load [content]
-  (.load (Yaml. (tag-constructor "!include" include-tag-ctor-fn)) content))
+(defn load [content tag ctor-fn]
+  (.load (Yaml. (tag-constructor tag ctor-fn)) content))
