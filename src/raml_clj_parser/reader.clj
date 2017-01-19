@@ -1,8 +1,13 @@
 (ns raml-clj-parser.reader
   (:refer-clojure :exclude [read])
-  (:require [raml-clj-parser.yaml :as yaml ] :reload-all))
+  (:require [raml-clj-parser.yaml :as yaml ]
+            [clojure.string :as str]
+            :reload-all)
+  )
 
 (defrecord RamlIncludeTag [tag path])
+
+(defrecord RamlSubUrlTag [tag content])
 
 (defn include-tag-ctor-fn
   [tag str-val]
@@ -11,18 +16,20 @@
 (defprotocol SnakeYamlReader
   (->clj [node]))
 
+(defn- is-url-path? [i]
+  (str/starts-with? i "/"))
+
+(defn- get-valid-key[k]
+  (if  (is-url-path? k)
+    (str "/" k)
+    k))
+
 (defn- to-clj-key [key]
   (cond (keyword? key) key
-        (string? key) (keyword key)
-        :default (prn-str key)))
+        (string? key)  (keyword (get-valid-key key))
+        :default       (prn-str key)))
 
 (extend-protocol SnakeYamlReader
-
-  clojure.lang.IPersistentMap
-  (->clj [node]
-    (into {}
-          (for [[k v] node]
-            [(to-clj-key k) (->clj v)])))
 
   java.util.LinkedHashMap
   (->clj [node]
@@ -44,7 +51,7 @@
   (->clj [node] nil)
 
   RamlIncludeTag
-  (->clj [node] {:tag (:tag node) :path (:path node)}))
+  (->clj [node] (into {} node)))
 
 (defn read [content]
   (let [raw_yaml (yaml/load content "!include" include-tag-ctor-fn)]
