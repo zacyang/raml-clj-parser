@@ -7,5 +7,5 @@ script: lein2 build
 jdk:
   - oraclejdk8
 
-after_script:
-  - bash -ex coveralls.sh
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
