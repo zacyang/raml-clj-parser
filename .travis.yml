@@ -6,3 +6,6 @@ script: lein2 build
 
 jdk:
   - oraclejdk8
+
+after_script:
+  - bash -ex coveralls.sh
