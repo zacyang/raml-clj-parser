@@ -14,5 +14,4 @@
                    :resource-paths ["src/test/resources"]
                    :plugins        [[lein-midje "3.2.1"]
                                     [lein-kibit "0.1.3"]
-                                    [lein-cloverage "1.0.9"]
-                                    [refactor-nrepl "2.3.0-SNAPSHOT"]]}})
+                                    [lein-cloverage "1.0.9"]]}})
