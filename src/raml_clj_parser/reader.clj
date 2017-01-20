@@ -39,10 +39,10 @@
 
   java.util.LinkedHashSet
   (->clj [node]
-    (into #{} node))
+    (set node))
 
   java.util.ArrayList
-  (->clj[node] (into [] (map ->clj node)))
+  (->clj[node] (vec (map ->clj node)))
 
   Object
   (->clj [node] node)

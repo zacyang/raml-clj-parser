@@ -8,6 +8,9 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.yaml/snakeyaml "1.17"]]
 
-  :profiles {:dev {:dependencies   [[midje "1.8.2"]]
+  :profiles {:dev {
+                   :aliases {"build" ["do" ["midje"] ["kibit"] ]}
+                   :dependencies   [[midje "1.8.2"]]
                    :resource-paths ["src/test/resources"]
-                   :plugins        [[lein-midje "3.2.1"]]}})
+                   :plugins        [[lein-midje "3.2.1"]
+                                    [lein-kibit "0.1.3"]]}})
