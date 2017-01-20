@@ -1,13 +1,12 @@
 (ns raml-clj-parser.reader
   (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ]
-            [clojure.string :as str]
-            :reload-all)
-  )
+            [clojure.string :as str])
+  (:import [java.io
+            BufferedReader
+            StringReader]))
 
 (defrecord RamlIncludeTag [tag path])
-
-(defrecord RamlSubUrlTag [tag content])
 
 (defn include-tag-ctor-fn
   [tag str-val]
@@ -53,6 +52,31 @@
   RamlIncludeTag
   (->clj [node] (into {} node)))
 
-(defn read [content]
+(def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
+(def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
+
+(defn- is-valid-first-line? [line]
+  (.matches line REGEX_FIRST_LINE))
+
+(defn- get-raml-version [content]
+  (let [all_lines  (-> content
+                       (StringReader.)
+                       (BufferedReader.)
+                       line-seq)
+        first_line (first all_lines)]
+    (if (is-valid-first-line? first_line)
+      (second (str/split first_line #" "))
+      ERR_INVALID_FIRST_LINE)))
+
+(defn- generate-edn [version edn_yaml]
+  (merge {:raml-version version} edn_yaml))
+
+(defn- load-raml-content [content]
   (let [raw_yaml (yaml/load content "!include" include-tag-ctor-fn)]
     (->clj raw_yaml)))
+
+(defn read [content]
+  (let [raml_version (get-raml-version content)]
+    (if-not (= ERR_INVALID_FIRST_LINE raml_version)
+      (generate-edn raml_version (load-raml-content content))
+      ERR_INVALID_FIRST_LINE)))

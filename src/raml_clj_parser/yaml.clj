@@ -11,7 +11,6 @@
             ScalarNode
             Tag]))
 
-
 (defn call-method
   [klass method-name params obj & args]
   (-> klass (.getDeclaredMethod (name method-name)

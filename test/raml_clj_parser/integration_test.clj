@@ -5,4 +5,5 @@
 
 (fact "should not blow up..."
       (let [result (core/read-raml "test/resources/raml/v08/sample.raml")]
-        (:error result) => nil))
+        (:error result) => nil
+        (:title result) => "Jukebox API"))

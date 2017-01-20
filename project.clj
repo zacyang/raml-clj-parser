@@ -9,9 +9,10 @@
                  [org.yaml/snakeyaml "1.17"]]
 
   :profiles {:dev {
-                   :aliases {"build" ["do" ["midje"] ["kibit"] ]}
+                   :aliases        {"build" ["do" ["midje"] ["kibit"] ]}
                    :dependencies   [[midje "1.8.2"]]
                    :resource-paths ["src/test/resources"]
                    :plugins        [[lein-midje "3.2.1"]
                                     [lein-kibit "0.1.3"]
-                                    [lein-cloverage "1.0.9"]]}})
+                                    [lein-cloverage "1.0.9"]
+                                    [refactor-nrepl "2.3.0-SNAPSHOT"]]}})
