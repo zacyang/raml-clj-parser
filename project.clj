@@ -10,7 +10,7 @@
 
   :profiles {:dev {
                    :aliases        {"build" ["do" ["midje"] ["kibit"] ]}
-                   :dependencies   [[midje "1.8.2"]]
+                   :dependencies   [[midje "1.8.3"]]
                    :resource-paths ["src/test/resources"]
                    :plugins        [[lein-midje "3.2.1"]
                                     [lein-kibit "0.1.3"]

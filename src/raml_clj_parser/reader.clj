@@ -2,17 +2,12 @@
   (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ]
             [clojure.string :as str])
-  (:import [java.io
+  (:import [raml_clj_parser.tags RamlIncludeTag]
+           [java.io
             BufferedReader
             StringReader]))
 
-(defrecord RamlIncludeTag [tag path])
-
-(defn include-tag-ctor-fn
-  [tag str-val]
-  (->RamlIncludeTag tag str-val))
-
-(defprotocol SnakeYamlReader
+(defprotocol RamlReader
   (->clj [node]))
 
 (defn- is-url-path? [i]
@@ -28,7 +23,7 @@
         (string? key)  (keyword (get-valid-key key))
         :default       (prn-str key)))
 
-(extend-protocol SnakeYamlReader
+(extend-protocol RamlReader
 
   java.util.LinkedHashMap
   (->clj [node]
@@ -50,7 +45,7 @@
   (->clj [node] nil)
 
   RamlIncludeTag
-  (->clj [node] (into {} node)))
+  (->clj [node] node))
 
 (def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
 (def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
@@ -72,7 +67,7 @@
   (merge {:raml-version version} edn_yaml))
 
 (defn- load-raml-content [content]
-  (let [raw_yaml (yaml/load content "!include" include-tag-ctor-fn)]
+  (let [raw_yaml (yaml/load content )]
     (->clj raw_yaml)))
 
 (defn read [content]

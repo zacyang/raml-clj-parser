@@ -1,5 +1,6 @@
 (ns raml-clj-parser.yaml
   (:refer-clojure :exclude [load])
+  (:require [raml-clj-parser.tags :as tags])
   (:import [org.yaml.snakeyaml Yaml]
            [org.yaml.snakeyaml.constructor
             Constructor
@@ -41,5 +42,9 @@
           constructor)
     result))
 
-(defn load [content tag ctor-fn]
-  (.load (Yaml. (tag-constructor tag ctor-fn)) content))
+(defn- create-yaml []
+  (Yaml. (tag-constructor tags/TAG_NAME tags/include-tag-ctor-fn)))
+
+(defn load
+  [content]
+  (.load (create-yaml) content))
