@@ -3,10 +3,12 @@
             [raml-clj-parser.reader :as reader]))
 
 (defn- when-exist [path]
-  (when  (.exists (io/as-file path))
-    (slurp path)))
+  (let [file  (io/as-file path) ]
+    (when  (and (.exists file)
+                (not (.isDirectory file)))
+      [(slurp path) (.getParent file)])))
 
 (defn read-raml [path]
-  (if-let  [content (when-exist path)]
-    (reader/read content)
+  (if-let  [[content base_url] (when-exist path)]
+    (reader/read content base_url)
     {:error "file not exist"}))

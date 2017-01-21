@@ -7,17 +7,10 @@
 (fact "should parse file when file is exist"
       (core/read-raml ..file_path..) => ..result..
       (provided
-       (#'core/when-exist ..file_path..) =>  ..raml_file_content..
-       (reader/read ..raml_file_content..) => ..result..))
+       (#'core/when-exist ..file_path..) =>  [..raml_file_content.. ..base_path..]
+       (reader/read ..raml_file_content.. ..base_path..) => ..result..))
 
 (fact "should return error infor when file is not exist"
       (core/read-raml ..file_path..) => {:error "file not exist"}
       (provided
        (#'core/when-exist ..file_path..) => nil))
-
-;; (fact "should parse string when input is plan string content"
-;;       (->raml ..raml_content..) => ..result..
-;;       (provided
-;;        (io/reader ..raml_content..) => ..raml_file..
-;;        (reader/->clj ..raml_content..) => ..result..)
-;;       )

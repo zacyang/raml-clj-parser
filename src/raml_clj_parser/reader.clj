@@ -42,10 +42,7 @@
   (->clj [node] node)
 
   nil
-  (->clj [node] nil)
-
-  RamlIncludeTag
-  (->clj [node] node))
+  (->clj [node] nil))
 
 (def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
 (def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
@@ -66,12 +63,12 @@
 (defn- generate-edn [version edn_yaml]
   (merge {:raml-version version} edn_yaml))
 
-(defn- load-raml-content [content]
-  (let [raw_yaml (yaml/load content )]
+(defn- load-raml-content [content base_path]
+  (let [raw_yaml (yaml/load content base_path)]
     (->clj raw_yaml)))
 
-(defn read [content]
+(defn read [content base_path]
   (let [raml_version (get-raml-version content)]
     (if-not (= ERR_INVALID_FIRST_LINE raml_version)
-      (generate-edn raml_version (load-raml-content content))
+      (generate-edn raml_version (load-raml-content content base_path))
       ERR_INVALID_FIRST_LINE)))

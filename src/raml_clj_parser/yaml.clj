@@ -42,9 +42,9 @@
           constructor)
     result))
 
-(defn- create-yaml []
-  (Yaml. (tag-constructor tags/TAG_NAME tags/include-tag-ctor-fn)))
+(defn- create-yaml [path]
+  (Yaml. (tag-constructor tags/TAG_NAME (partial  tags/include-tag-ctor-fn path))))
 
 (defn load
-  [content]
-  (.load (create-yaml) content))
+  [content path]
+  (.load (create-yaml path) content))

@@ -1,6 +1,6 @@
 (ns raml-clj-parser.integration-test
   (:require [raml-clj-parser.core :as core]
-            [midje.sweet :refer [fact =>]]))
+            [midje.sweet :refer [fact => =not=> contains has]]))
 
 
 (fact "should not blow up..."
@@ -14,9 +14,11 @@
 
         (:error result) => nil
         (count schemas) => 3
-        ;;(type (first schemas)) => RamlIncludeTag
+
+        (get-in  (first schemas) [:song :content :error]) => nil
+
+
 
         ;;werid midje issue, the following assertion return false, even everything is identical
         ;(first schemas) =>  {:song {:path "jukebox-include-song.schema", :tag "!include"}}
-
         ))

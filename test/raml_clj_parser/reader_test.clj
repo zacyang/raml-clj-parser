@@ -16,16 +16,16 @@
         (sut/->clj java_map_with_slash_in_key) => {:original_key "value"}))
 
 (fact "should read raml version infomration"
-      (:raml-version (sut/read ..content..)) => ..RAML_VERSION..
+      (:raml-version (sut/read ..content.. ..base_path..)) => ..RAML_VERSION..
       (provided
        (#'sut/get-raml-version ..content..) => ..RAML_VERSION..
-       (yaml/load ..content..) => ..raw_yaml..))
+       (yaml/load ..content.. ..base_path..) => ..raw_yaml..))
 
 (fact "should get version from raw yaml"
       (#'sut/get-raml-version  "#%RAML 0.8 \n--- \n otherstuff") => "0.8")
 
 (fact "should return error inform when first line is not raml"
-      (sut/read ..raml_with_invalid_first_line..)
+      (sut/read ..raml_with_invalid_first_line.. ..base_path..)
       => {:error "Invalid first line, first line should be #%RAML 0.8"}
 
       (provided
