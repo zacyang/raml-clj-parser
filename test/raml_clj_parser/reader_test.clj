@@ -1,6 +1,8 @@
 (ns raml-clj-parser.reader-test
+  (:import [raml_clj_parser.tags RamlIncludeTag])
   (:require [raml-clj-parser.reader :as sut]
             [raml-clj-parser.yaml :as yaml]
+            [raml-clj-parser.tags :as tags]
             [midje.sweet :as midje :refer [fact => anything]]))
 
 (fact "should return converted key when parse sub url section"
@@ -43,3 +45,14 @@
 
 (fact "should return true when first is valid with space"
       (#'sut/is-valid-first-line?  "#%RAML 0.8 ") => true)
+
+(fact "should return parsed raml when include resource is raml"
+      (let [raml_include (tags/->RamlIncludeTag tags/TAG_NAME "test/resources/raml/v08" "small.raml"
+                                                nil)]
+
+        (sut/->clj raml_include) => {:baseUri "http://jukebox.api.com", :raml-version "0.8", :title "Jukebox API", :version "v1"}))
+
+(fact "should return tag when original content is unavaiable"
+      (let [raml_include (tags/->RamlIncludeTag tags/TAG_NAME "test/resources/raml/v08" "anything" {:error "resource is not available"} )]
+
+        (sut/->clj raml_include) =>  {:base_path "test/resources/raml/v08", :content {:error "resource is not available"}, :path "anything", :tag "!include"}))

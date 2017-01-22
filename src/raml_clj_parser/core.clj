@@ -1,14 +1,8 @@
 (ns raml-clj-parser.core
-  (:require [clojure.java.io :as io]
-            [raml-clj-parser.reader :as reader]))
-
-(defn- when-exist [path]
-  (let [file  (io/as-file path) ]
-    (when  (and (.exists file)
-                (not (.isDirectory file)))
-      [(slurp path) (.getParent file)])))
+  (:require [raml-clj-parser.reader :as reader]
+            [raml-clj-parser.util :as util]))
 
 (defn read-raml [path]
-  (if-let  [[content base_url] (when-exist path)]
+  (if-let  [[content base_url] (util/when-exist path)]
     (reader/read content base_url)
     {:error "file not exist"}))

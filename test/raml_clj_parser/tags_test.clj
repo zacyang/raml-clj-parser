@@ -6,7 +6,8 @@
       (let [base_path         "/base_path"
             tag_resource_path "path"]
         (sut/include-tag-ctor-fn base_path ..tag_name.. tag_resource_path)
-        => {:tag     ..tag_name..
+        => {:base_path "/base_path"
+            :tag     ..tag_name..
             :path    tag_resource_path
             :content ..content..}
 

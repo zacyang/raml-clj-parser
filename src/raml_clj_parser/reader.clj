@@ -1,11 +1,15 @@
 (ns raml-clj-parser.reader
   (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [raml-clj-parser.tags :as tags]
+            [raml-clj-parser.util :as util])
   (:import [raml_clj_parser.tags RamlIncludeTag]
            [java.io
             BufferedReader
             StringReader]))
+
+(declare read)
 
 (defprotocol RamlReader
   (->clj [node]))
@@ -42,7 +46,23 @@
   (->clj [node] node)
 
   nil
-  (->clj [node] nil))
+  (->clj [node] nil)
+
+  RamlIncludeTag
+  (->clj [node]
+    (if (and
+         (not (get-in node [:content  :error]))
+         tags/is-raml-resource? (:path node))
+
+      (let [file_content_path (util/when-exist (str (:base_path node) "/" (:path node)))
+            content           (first file_content_path)
+            path              (second file_content_path)]
+
+        (read content path))
+
+      node
+
+      )))
 
 (def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
 (def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
