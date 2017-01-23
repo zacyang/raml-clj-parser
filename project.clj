@@ -6,7 +6,8 @@
   :author "Yang Yang"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [org.yaml/snakeyaml "1.17"]]
+                 [org.yaml/snakeyaml "1.17"]
+                 [prismatic/schema "1.1.3"]]
 
   :profiles {:dev {
                    :aliases        {"build" ["do" ["midje"] ["kibit"] ]}
