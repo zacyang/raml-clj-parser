@@ -1,7 +1,7 @@
 (ns raml-clj-parser.validator-test
   (:require [raml-clj-parser.validator :as sut]
             [schema.core :as s]
-            [midje.sweet :as midje :refer [facts fact => contains anything]]))
+            [midje.sweet :as midje :refer [facts fact => contains anything ]]))
 
 (def ^:const MIN_VALID_DATA {:title "abc" :baseUri "https://abc.com"})
 
@@ -22,9 +22,7 @@
 
 (facts "Required properties of every node in RAML model must be provided with values."
        (fact "All required root elements should presents"
-             (:error (#'sut/is-valid-root-elements? {})) => {:title 'missing-required-key, :baseUri 'missing-required-key}
-
-             )
+             (:error (#'sut/is-valid-root-elements? {})) => {:title 'missing-required-key, :baseUri 'missing-required-key})
 
        (fact "should return original data when it's valid"
 
@@ -46,7 +44,6 @@
              (#'sut/is-valid-root-elements? (dissoc MIN_VALID_DATA :baseUri))
              => (contains  {:error {:baseUri 'missing-required-key}}))
 
-
        (fact "if base uri contains reserve uri parameter version , we should parse it"
              "TODO:not sure where should we impl it")
 
@@ -59,6 +56,13 @@
 
        (fact "protocols must be array of strings, the value could only be HTTP or HTTPS"
              (#'sut/is-valid-root-elements? (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"])) =>  {:baseUri "https://abc.com", :protocols ["HTTP" "HTTPS"], :title "abc"})
+
+       (fact "negative cases ,protocols must be array of strings, the value could only be HTTP or HTTPS"
+
+             (#'sut/valid-protocols? "not list") => false
+             (#'sut/valid-protocols? nil) => false
+             (#'sut/valid-protocols? ["ftp"]) => false
+             (#'sut/valid-protocols? ["ftp" "HTTPS"]) => false)
 
        (fact "uri parameter for baseuri other than version
 https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters

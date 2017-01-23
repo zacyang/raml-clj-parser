@@ -15,12 +15,12 @@
   (when-let [base_uri (:baseUri raml)]
     (not (nil? (re-find  #"\{version\}" base_uri)))))
 
-(defn valid-protocol?[c]
-  (when (and (coll? c) (not (empty? c)))
-    (every?  (fn[v] (some #(= % v) ["HTTP" "HTTPS"]))  c)))
+(defn- valid-protocols?[c]
+  (if (and (coll? c) (seq c))
+    (every?  (fn[v] (some #(= % v) ["HTTP" "HTTPS"]))  c)
+    false))
 
-(def protocols (s/pred valid-protocol?  "protocol only support http and/or https"))
-
+(def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
 
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
@@ -49,7 +49,8 @@
 
 (defn- validate-url-parameter [raml]
   (if (versioning-base-uri? raml)
-    (when-not (contains? raml :version) {:error {:version "you specified version in baseUri, version tag is needed"}})))
+    (when-not (contains? raml :version)
+      {:error {:version "you specified version in baseUri, version tag is needed"}})))
 
 (defn- is-valid-root-elements?
   "https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#root-section"
