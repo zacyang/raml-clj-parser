@@ -1,6 +1,6 @@
 (defproject raml-clj-parser "0.1.0-SNAPSHOT"
   :description "A clojure implementation of RAML parser"
-  :url "http://example.com/FIXME"
+  :url "https://github.com/zacyang/raml-clj-parser"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
   :author "Yang Yang"

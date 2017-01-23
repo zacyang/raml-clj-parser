@@ -27,6 +27,18 @@
         (string? key)  (keyword (get-valid-key key))
         :default       (prn-str key)))
 
+(defn- is-external-raml? [node]
+  (and
+   (not (get-in node [:content  :error]))
+   tags/is-raml-resource? (:path node)))
+
+(defn- get-external-raml [node]
+  (let [file_content_path (util/when-exist (str (:base_path node) "/" (:path node)))
+        content           (first file_content_path)
+        path              (second file_content_path)]
+
+    (read content path)))
+
 (extend-protocol RamlReader
 
   java.util.LinkedHashMap
@@ -50,19 +62,9 @@
 
   RamlIncludeTag
   (->clj [node]
-    (if (and
-         (not (get-in node [:content  :error]))
-         tags/is-raml-resource? (:path node))
-
-      (let [file_content_path (util/when-exist (str (:base_path node) "/" (:path node)))
-            content           (first file_content_path)
-            path              (second file_content_path)]
-
-        (read content path))
-
-      node
-
-      )))
+    (if (is-external-raml? node)
+      (get-external-raml node)
+      node)))
 
 (def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
 (def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
