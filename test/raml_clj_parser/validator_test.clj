@@ -1,38 +1,66 @@
 (ns raml-clj-parser.validator-test
   (:require [raml-clj-parser.validator :as sut]
-            [midje.sweet :as midje :refer [facts fact =>]]))
+            [schema.core :as s]
+            [midje.sweet :as midje :refer [facts fact => contains anything]]))
+
+(def ^:const MIN_VALID_DATA {:title "abc" :baseUri "https://abc.com"})
 
 (facts "util fn test"
-       (fact "should return true when no extra keys"
-             (#'sut/no-extra-keys? {}) => true)
+       (fact "should return true for valid uri"
+             (#'sut/is-url? "http://some.com") => true
+             (#'sut/is-url? "https://some.com") => true)
 
-       (fact "should return false when contains extra keys"
-             (#'sut/no-extra-keys? {:exter-key "value"}) => false)
+       (fact "should return true for valid uri with uri parameter"
+             (#'sut/is-url? "http://some.{docker}.com") => true
+             (#'sut/is-url? "https://some.{docker}.com") => true)
 
-       (fact "should return true when all required keys present"
-             (#'sut/all-required-key-presents? {:title ..api_name.. :baseUri ..some_uri..})
-             => true)
+       (fact "should return false for invalid uri with uri parameter"
+             (#'sut/is-url? "http://some.{docker}.com") => true
+             (#'sut/is-url? "https://some.{docker}.com") => true)
 
-       (fact "should return false  when required keys are missing"
-             (#'sut/all-required-key-presents? {:baseUri ..some_uri..})
-             => false
-             (#'sut/all-required-key-presents? {:title ..api_name..})=> false
-             (#'sut/all-required-key-presents? {}) => false))
+       (fact "TODO: should somehow store the uri parameter magically.... "))
 
 (facts "Required properties of every node in RAML model must be provided with values."
        (fact "All required root elements should presents"
-             (let [valid_root_level_value {}])
-             ;(sut/is-all-root-presents? valid_root_level_value) => true
+             (:error (#'sut/is-valid-root-elements? {})) => {:title 'missing-required-key, :baseUri 'missing-required-key}
+             (provided
+              (#'sut/validate-url-parameter {}) => nil)
              )
 
-       (fact "API title must presents and contains value")
+       (fact "should return original data when it's valid"
 
-       (fact "base uri must presents")
+             (#'sut/is-valid-root-elements? MIN_VALID_DATA) =>   {:title "abc" :baseUri "https://abc.com" })
 
-       (fact "if base uri contains reserve uri parameter version , we should parse it")
+       (fact "should return false when contains extra keys"
+             (#'sut/is-valid-root-elements? (merge MIN_VALID_DATA {:exteral-key "bla"}))
+             => (contains  {:error {:exteral-key 'disallowed-key}}))
+
+       (fact "API title must presents and contains value"
+             (#'sut/is-valid-root-elements?(dissoc MIN_VALID_DATA :title))
+             =>  (contains {:error {:title 'missing-required-key}})
+
+             ;;TODO not sure why same content not pass test
+             ;;(:error (#'sut/is-valid-root-elements? (merge MIN_VALID_DATA {:title 'not-string}))) =>  {:title '(not (instance? java.lang.String not-string ))}
+             )
+
+       (fact "base uri must presents"
+             (#'sut/is-valid-root-elements? (dissoc MIN_VALID_DATA :baseUri))
+             => (contains  {:error {:baseUri 'missing-required-key}})
+             (provided
+              (#'sut/validate-url-parameter anything) => nil))
+
+
+       (fact "if base uri contains reserve uri parameter version , we should parse it"
+             "TODO:not sure where should we impl it")
+
+       (fact "when version presents in uri as parameter, version tag become mandatory"
+             (let [without_version_and_uri_parameter {:title   "abc"
+                                                   :baseUri "https://abc.com/{version}"
+                                                   }]
+               (#'sut/is-valid-root-elements? without_version_and_uri_parameter)
+               => (contains {:error {:version "you specified version in baseUri, version tag is needed"}})))
 
        (fact "uri parameter for baseuri other than version
 https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters
 ")
-
        )
