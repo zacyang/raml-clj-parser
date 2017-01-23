@@ -57,6 +57,9 @@
                (#'sut/is-valid-root-elements? without_version_and_uri_parameter)
                => (contains {:error {:version 'missing-required-key}})))
 
+       (fact "protocols must be array of strings, the value could only be HTTP or HTTPS"
+             (#'sut/is-valid-root-elements? (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"])) =>  {:baseUri "https://abc.com", :protocols ["HTTP" "HTTPS"], :title "abc"})
+
        (fact "uri parameter for baseuri other than version
 https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters
 "))
