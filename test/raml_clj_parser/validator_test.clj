@@ -23,8 +23,7 @@
 (facts "Required properties of every node in RAML model must be provided with values."
        (fact "All required root elements should presents"
              (:error (#'sut/is-valid-root-elements? {})) => {:title 'missing-required-key, :baseUri 'missing-required-key}
-             (provided
-              (#'sut/validate-url-parameter {}) => nil)
+
              )
 
        (fact "should return original data when it's valid"
@@ -45,9 +44,7 @@
 
        (fact "base uri must presents"
              (#'sut/is-valid-root-elements? (dissoc MIN_VALID_DATA :baseUri))
-             => (contains  {:error {:baseUri 'missing-required-key}})
-             (provided
-              (#'sut/validate-url-parameter anything) => nil))
+             => (contains  {:error {:baseUri 'missing-required-key}}))
 
 
        (fact "if base uri contains reserve uri parameter version , we should parse it"
@@ -55,12 +52,11 @@
 
        (fact "when version presents in uri as parameter, version tag become mandatory"
              (let [without_version_and_uri_parameter {:title   "abc"
-                                                   :baseUri "https://abc.com/{version}"
-                                                   }]
+                                                      :baseUri "https://abc.com/{version}"
+                                                      }]
                (#'sut/is-valid-root-elements? without_version_and_uri_parameter)
-               => (contains {:error {:version "you specified version in baseUri, version tag is needed"}})))
+               => (contains {:error {:version 'missing-required-key}})))
 
        (fact "uri parameter for baseuri other than version
 https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters
-")
-       )
+"))
