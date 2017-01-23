@@ -7,7 +7,17 @@
              (#'sut/no-extra-keys? {}) => true)
 
        (fact "should return false when contains extra keys"
-             (#'sut/no-extra-keys? {:exter-key "value"}) => false))
+             (#'sut/no-extra-keys? {:exter-key "value"}) => false)
+
+       (fact "should return true when all required keys present"
+             (#'sut/all-required-key-presents? {:title ..api_name.. :baseUri ..some_uri..})
+             => true)
+
+       (fact "should return false  when required keys are missing"
+             (#'sut/all-required-key-presents? {:baseUri ..some_uri..})
+             => false
+             (#'sut/all-required-key-presents? {:title ..api_name..})=> false
+             (#'sut/all-required-key-presents? {}) => false))
 
 (facts "Required properties of every node in RAML model must be provided with values."
        (fact "All required root elements should presents"
