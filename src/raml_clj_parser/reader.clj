@@ -2,7 +2,6 @@
   (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ]
             [clojure.string :as str]
-            [raml-clj-parser.tags :as tags]
             [raml-clj-parser.util :as util])
   (:import [raml_clj_parser.tags RamlIncludeTag]
            [java.io
@@ -13,6 +12,10 @@
 
 (defprotocol RamlReader
   (->clj [node]))
+
+(def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
+(def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
+(def ^:const ERR_FILE_NOT_EXISTS  {:error  "resource is not available"})
 
 (defn- is-url-path? [i]
   (str/starts-with? i "/"))
@@ -27,17 +30,23 @@
         (string? key)  (keyword (get-valid-key key))
         :default       (prn-str key)))
 
-(defn- is-external-raml? [node]
-  (and
-   (not (get-in node [:content  :error]))
-   tags/is-raml-resource? (:path node)))
+(defn is-raml-resource? [path]
+  (str/ends-with? path ".raml"))
 
-(defn- get-external-raml [node]
-  (let [file_content_path (util/when-exist (str (:base_path node) "/" (:path node)))
-        content           (first file_content_path)
-        path              (second file_content_path)]
+(defn- has-error? [node]
+  (not (nil? (get-in node [:content  :error]))))
 
-    (read content path)))
+(defn- get-resource-content [file_content_path original_path]
+  (let [content (first file_content_path)
+        path    (second file_content_path)]
+    (if (is-raml-resource? original_path)
+      (read content path)
+      content)))
+
+(defn- get-external-resource [node]
+  (if-let [file_content_path (util/when-exist (str (:base_path node) "/" (:path node)))]
+    (get-resource-content file_content_path (:path node))
+    ERR_FILE_NOT_EXISTS))
 
 (extend-protocol RamlReader
 
@@ -62,12 +71,10 @@
 
   RamlIncludeTag
   (->clj [node]
-    (if (is-external-raml? node)
-      (get-external-raml node)
-      node)))
+    (if (has-error? node)
+      node
+      (get-external-resource node))))
 
-(def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
-(def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
 
 (defn- is-valid-first-line? [line]
   (.matches line REGEX_FIRST_LINE))

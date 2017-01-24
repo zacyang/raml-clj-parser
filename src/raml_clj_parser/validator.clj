@@ -1,9 +1,16 @@
 (ns raml-clj-parser.validator
+  (:import   [java.io BufferedReader StringReader])
   (:require [clojure.set :as set]
             [clojure.data :as data]
             [clojure.java.io :as io]
+            [clojure.string :as str]
             [schema.core :as s]))
 
+(def ^:const VALID_YAML_TYPES ["text/yaml"
+                               "text/x-yaml"
+                               "application/yaml"
+                               "application/x-yaml*"])
+(def ^:const CUSTOM_YAML_TYPE "application/[A-Za-z.-0-1]*\\+?(json|xml)")
 (defn- is-url?  [i]
   (try
     (when (io/as-url i) true)
@@ -20,8 +27,38 @@
     (every?  (fn[v] (some #(= % v) ["HTTP" "HTTPS"]))  c)
     false))
 
-(def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
+(defn- is-one-of-valid-yaml-types? [i]
+  (some #(= % i) VALID_YAML_TYPES))
 
+(defn- get-all-IANA-MINE-types[]
+  (let [content  (slurp "resources/media_types.txt")
+        all_lines  (-> content
+                       (StringReader.)
+                       (BufferedReader.)
+                       line-seq)]
+    (map #(second (str/split % #",")) all_lines)))
+
+(def ALL_IANA_MINE (memoize get-all-IANA-MINE-types))
+
+(defn- is-one-of-IANA-MIME? [i]
+  (true? (some #(= % i) (ALL_IANA_MINE))))
+
+(defn- is-valid-custom-type? [i]
+  (.matches i CUSTOM_YAML_TYPE))
+
+(defn- valid-media-types? [i]
+  (and
+   (string? i)
+   (or
+    (is-valid-custom-type? i)
+    (is-one-of-valid-yaml-types? i)
+    (is-one-of-IANA-MIME? i))))
+
+(defn- valid-schemas? [i]
+  (instance? clojure.lang.APersistentMap i))
+
+(def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
+(def media-types (s/pred valid-media-types? "Invalid media type please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"))
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
   {(s/required-key :title)         s/Str

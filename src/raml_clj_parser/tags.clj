@@ -16,7 +16,7 @@
     (try
       (slurp path)
       (catch Exception e {:error  "resource is not available"}))))
-
+                                        ;(get-resource (str base_path "/" path))
 (defn include-tag-ctor-fn
   [base_path tag path]
-  (->RamlIncludeTag tag base_path path (get-resource (str base_path "/" path))))
+  (->RamlIncludeTag tag base_path path nil))

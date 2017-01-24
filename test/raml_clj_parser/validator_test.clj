@@ -1,7 +1,8 @@
 (ns raml-clj-parser.validator-test
   (:require [raml-clj-parser.validator :as sut]
             [schema.core :as s]
-            [midje.sweet :as midje :refer [facts fact => contains anything ]]))
+            [midje.sweet :as midje
+             :refer [facts fact => contains anything tabular]]))
 
 (def ^:const MIN_VALID_DATA {:title "abc" :baseUri "https://abc.com"})
 
@@ -64,6 +65,55 @@
              (#'sut/valid-protocols? ["ftp"]) => false
              (#'sut/valid-protocols? ["ftp" "HTTPS"]) => false)
 
+       (fact "Media type should be in the given lists")
+
        (fact "uri parameter for baseuri other than version
 https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters
 "))
+
+(facts "media typeshttps://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"
+       (tabular
+        (fact "valid media type could be in one of 3 catologue in the specs"
+              (#'sut/valid-media-types? ?type) => ?expect)
+        ?type                               ?expect
+        "text/yaml"                         true
+        "text/x-yaml"                       true
+        "application/yaml"                  true
+        "application/x-yaml*"               true
+
+        "application/zip"                   true
+
+        "application/yang+json"             true
+        "application/yang+xml"             true
+        "application/yangjson"             true
+        "application/yangxml"             true)
+
+       (tabular
+        (fact "some invalid cases , of course not able to cover all wait for clj1.9 's advent"
+              (#'sut/valid-media-types? ?type) => ?expect)
+        ?type                               ?expect
+        "bla"                               false
+        "text/x1-yaml"                      false
+        "notapp/yang+json"                  false
+        15                                  false
+        ))
+
+(facts "schemas https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#schemas"
+       (tabular
+        (fact "The value of the schemas property is an array of maps"
+              (#'sut/valid-schemas? ?schema) => ?expect)
+        ?schema                           ?expect
+        {}                                true
+        "" false
+        [] false
+        #{} false)
+
+       (fact "Schema could be name : !include schmema"
+             ;;TODO: WIP
+             )
+       (fact "Schema could be only !include schema"
+             )
+       (fact "Schema could be name: schema-content"
+             ;(#'sut/vaid-schemas? {:song "{\n  \"type\": \"object\",\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"id\": \"http://jsonschema.net\",\n  \"required\": true,\n  \"properties\": {\n    \"songId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    },\n    \"songTitle\": {\n      \"type\": \"string\",\n      \"required\": true\n    },\n    \"albumId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    }\n  }\n}\n"}) => true
+             )
+       )
