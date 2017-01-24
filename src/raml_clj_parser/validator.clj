@@ -54,8 +54,10 @@
     (is-one-of-valid-yaml-types? i)
     (is-one-of-IANA-MIME? i))))
 
-(defn- valid-schemas? [i]
-  (instance? clojure.lang.APersistentMap i))
+(defn- valid-schemas? [c]
+  (and
+   (vector? c)
+   (not (some (fn has-error?[i] (contains? i :error)) c))))
 
 (def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
 (def media-types (s/pred valid-media-types? "Invalid media type please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"))

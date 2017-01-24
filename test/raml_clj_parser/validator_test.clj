@@ -103,16 +103,24 @@ https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#ur
         (fact "The value of the schemas property is an array of maps"
               (#'sut/valid-schemas? ?schema) => ?expect)
         ?schema                           ?expect
-        {}                                true
-        "" false
-        [] false
-        #{} false)
+        {}                                false
+        ""                                false
+        []                                true
+        #{}                               false
+        [{}]                              true)
 
-       (fact "Schema could be name : !include schmema"
-             ;;TODO: inorder to do this I need to create a Tag for unkown name
-             )
-       (fact "Schema could be only !include schema"
-             )
+       (tabular
+        (fact "Schema could be name : !include schmema"
+              ;;since resource will be slurp into clj , so there will only be 3 types
+              ;; 1. error
+              ;; 2. raml
+              ;; 3. other schema
+              (#'sut/valid-schemas? ?schema) => ?expect)
+        ?schema                                 ?expect
+
+        [{:schema-name "content from the !include tag"}]         true
+        [{:error "resource is not available"}]      false)
+
        (fact "Schema could be name: schema-content"
              ;(#'sut/vaid-schemas? {:song "{\n  \"type\": \"object\",\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"id\": \"http://jsonschema.net\",\n  \"required\": true,\n  \"properties\": {\n    \"songId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    },\n    \"songTitle\": {\n      \"type\": \"string\",\n      \"required\": true\n    },\n    \"albumId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    }\n  }\n}\n"}) => true
              )
