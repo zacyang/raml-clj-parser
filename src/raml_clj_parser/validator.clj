@@ -96,4 +96,5 @@
     (s/validate root raml)
     (catch Exception e (.getData e))))
 
-(defn is-valid? [raml])
+(defn is-valid? [raml]
+  (is-valid-root-elements? raml))

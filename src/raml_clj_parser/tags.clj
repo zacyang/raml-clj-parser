@@ -1,9 +1,6 @@
 (ns raml-clj-parser.tags
   (:require [clojure.string :as str]))
 
-(defprotocol RamlDataCreator
-  (->clj [node]))
-
 (def ^:const TAG_NAME "!include")
 
 (defn is-raml-resource? [path]
@@ -20,3 +17,9 @@
 (defn include-tag-ctor-fn
   [base_path tag path]
   (->RamlIncludeTag tag base_path path nil))
+
+(defrecord UnkownTag [tag value])
+
+(defn unkown-tag-ctor-fn
+  [tag value]
+  (->UnkownTag tag value))

@@ -3,9 +3,7 @@
   (:require [raml-clj-parser.tags :as tags])
   (:import [org.yaml.snakeyaml Yaml]
            [org.yaml.snakeyaml.constructor
-            Constructor
             AbstractConstruct
-            Construct
             SafeConstructor
             BaseConstructor]
            [org.yaml.snakeyaml.nodes
@@ -25,25 +23,31 @@
       (doto (.setAccessible true))
       (.get obj)))
 
+(defn- create-tag-constructor [tag ctor_fn yaml_ctor]
+  (proxy [AbstractConstruct] []
+    (construct [node]
+      (let [scalar-node (cast ScalarNode node)
+            scalar (call-method BaseConstructor 'constructScalar [ScalarNode] yaml_ctor scalar-node)
+            str-val (cast String scalar)]
+        ;;TODO new tag name?
+        (ctor_fn tag str-val)))))
+
+(defn- register-tag-ctors [tag tag_ctor yaml_ctor]
+  (let [get-valid-tag (fn [v](when-not (nil? v)  (Tag. v)))]
+    (.put (get-field BaseConstructor 'yamlConstructors yaml_ctor)
+          (get-valid-tag tag)
+          tag_ctor)))
+
 (defn tag-constructor
   "Creates a custom SafeConstructor that understands the given tag"
-  [tag ctor_fn]
-  (let [result (SafeConstructor.)
-        constructor (proxy [AbstractConstruct] []
-                      (construct [node]
-                        (let [scalar-node (cast ScalarNode node)
-                              scalar (call-method BaseConstructor 'constructScalar [ScalarNode] result scalar-node)
-                              str-val (cast String scalar)]
-                          ;;TODO new tag name?
-                          (ctor_fn tag str-val)
-                          )))]
-    (.put (get-field BaseConstructor 'yamlConstructors result)
-          (Tag.  tag)
-          constructor)
-    result))
+  [path]
+  (let [yaml_ctor (SafeConstructor.)]
+    (register-tag-ctors tags/TAG_NAME (create-tag-constructor tags/TAG_NAME (partial  tags/include-tag-ctor-fn path) yaml_ctor) yaml_ctor)
+    (register-tag-ctors nil (create-tag-constructor nil  tags/unkown-tag-ctor-fn yaml_ctor) yaml_ctor)
+    yaml_ctor))
 
 (defn- create-yaml [path]
-  (Yaml. (tag-constructor tags/TAG_NAME (partial  tags/include-tag-ctor-fn path))))
+  (Yaml. (tag-constructor path)))
 
 (defn load
   [content path]
