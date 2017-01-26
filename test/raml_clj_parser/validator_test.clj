@@ -24,15 +24,16 @@
 
 (facts "Required properties of every node in RAML model must be provided with values."
        (fact "All required root elements should presents"
-             (:error (#'sut/is-valid-root-elements? {})) => {:title 'missing-required-key, :baseUri 'missing-required-key})
+             (:error (#'sut/is-valid-root-elements? {}))
+             => {:baseUri 'missing-required-key, :raml-version 'missing-required-key, :title 'missing-required-key})
 
        (fact "should return original data when it's valid"
+             (#'sut/is-valid-root-elements? MIN_VALID_DATA) => MIN_VALID_DATA)
 
-             (#'sut/is-valid-root-elements? MIN_VALID_DATA) =>   {:title "abc" :baseUri "https://abc.com" })
-
-       (fact "should return false when contains extra keys"
-             (#'sut/is-valid-root-elements? (merge MIN_VALID_DATA {:exteral-key "bla"}))
-             => (contains  {:error {:exteral-key 'disallowed-key}}))
+       (fact "should return original data when contains extra keys, since it could be url resource"
+             (let [with_extra_key (merge MIN_VALID_DATA {://exteral-key "bla"}) ]
+               (#'sut/is-valid-root-elements? with_extra_key)
+               => with_extra_key) )
 
        (fact "API title must presents and contains value"
              (#'sut/is-valid-root-elements?(dissoc MIN_VALID_DATA :title))
@@ -54,7 +55,7 @@
                => false))
 
        (fact "protocols must be array of strings, the value could only be HTTP or HTTPS"
-             (#'sut/is-valid-root-elements? (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"])) =>  {:baseUri "https://abc.com", :protocols ["HTTP" "HTTPS"], :title "abc"})
+             (#'sut/is-valid-root-elements? (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"])) => (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"]))
 
        (fact "negative cases ,protocols must be array of strings, the value could only be HTTP or HTTPS"
 
