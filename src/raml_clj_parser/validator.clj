@@ -17,10 +17,13 @@
     (when (io/as-url i) true)
     (catch java.net.MalformedURLException e false)))
 
-(def uri (s/pred is-url?  "invalid uri format"))
+(defn- is-base-uri? [baseUri]
+  (is-url? (:uri baseUri)))
+
+(def uri (s/pred is-base-uri?  "Invalid base uri format"))
 
 (defn- versioning-base-uri? [raml]
-  (when-let [base_uri (:baseUri raml)]
+  (when-let [base_uri (get-in  raml [:baseUri :rui])]
     (not (nil? (re-find  #"\{version\}" base_uri)))))
 
 (defn- valid-protocols?[c]
@@ -60,15 +63,14 @@
    (vector? c)
    (not-any? (fn has-error?[i] (contains? i :error)) c)))
 
-(defn- all-param-defined-in-base [root m]
-  (let [uriParameters_str (map name (keys (:uriParameters m)))
+(defn- all-parameters-defined-in-base-uri? [root]
+  (let [uriParameters_str (map name (keys (:uriParameters root)))
         defined_param     (get-in root [:baseUri :raml-clj-parser.reader/uri-parameters])]
     (nil? (first (data/diff uriParameters_str defined_param)))))
 
-(defn- valid-uri-parameters? [root m]
+(defn- valid-uri-parameters? [ m]
   (and
-   (instance? clojure.lang.APersistentMap m)
-   (all-param-defined-in-base root m)
+   (instance? clojure.lang.PersistentArrayMap m)
    (nil? (:version (:uriParameters m)))))
 
 (def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
@@ -80,28 +82,34 @@
 (def optional_version_tag
   {(s/required-key :title)         s/Str
    (s/required-key :baseUri)       uri
+   (s/required-key :raml-version)  s/Str
 
    (s/optional-key :mediaType)     media-types
    (s/optional-key :version)       s/Str
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
+   (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
    (s/optional-key :documentation) s/Str})
 
 (def mandatory_version_tag
   {(s/required-key :title)         s/Str
    (s/required-key :baseUri)       uri
    (s/required-key :version)       s/Str
+   (s/required-key :raml-version)  s/Str
 
    (s/optional-key :mediaType)     media-types
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
+   (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
    (s/optional-key :documentation) s/Str})
 
 (def root
-  (s/conditional versioning-base-uri?
-                 mandatory_version_tag
-                 :else
-                 optional_version_tag))
+  (s/constrained
+   (s/conditional versioning-base-uri?
+                  mandatory_version_tag
+                  :else
+                  optional_version_tag)
+   all-parameters-defined-in-base-uri?))
 
 (defn- validate-url-parameter [raml]
   (if (versioning-base-uri? raml)
@@ -115,5 +123,11 @@
     (s/validate root raml)
     (catch Exception e (.getData e))))
 
-(defn is-valid? [raml]
+(defn validate [raml]
   (is-valid-root-elements? raml))
+
+(defn- has-error? [validate_result]
+  (= :schema.core/error (:type validate_result)))
+
+(defn is-valid? [raml]
+  (not (has-error? (validate raml))))

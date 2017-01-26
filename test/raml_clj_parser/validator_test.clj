@@ -4,7 +4,8 @@
             [midje.sweet :as midje
              :refer [facts fact => contains anything tabular]]))
 
-(def ^:const MIN_VALID_DATA {:title "abc" :baseUri "https://abc.com"})
+(def ^:const MIN_VALID_DATA
+  {:raml-version "0.8", :title "abc", :version "v28.0", :baseUri {:uri "https://domain.force.com/", :raml-clj-parser.reader/uri-parameters []}})
 
 (facts "util fn test"
        (fact "should return true for valid uri"
@@ -45,15 +46,12 @@
              (#'sut/is-valid-root-elements? (dissoc MIN_VALID_DATA :baseUri))
              => (contains  {:error {:baseUri 'missing-required-key}}))
 
-       (fact "if base uri contains reserve uri parameter version , we should parse it"
-             "TODO:not sure where should we impl it")
-
        (fact "when version presents in uri as parameter, version tag become mandatory"
              (let [without_version_and_uri_parameter {:title   "abc"
                                                       :baseUri "https://abc.com/{version}"
                                                       }]
-               (#'sut/is-valid-root-elements? without_version_and_uri_parameter)
-               => (contains {:error {:version 'missing-required-key}})))
+               (#'sut/valid-protocols? without_version_and_uri_parameter)
+               => false))
 
        (fact "protocols must be array of strings, the value could only be HTTP or HTTPS"
              (#'sut/is-valid-root-elements? (assoc MIN_VALID_DATA :protocols ["HTTP" "HTTPS"])) =>  {:baseUri "https://abc.com", :protocols ["HTTP" "HTTPS"], :title "abc"})
@@ -127,19 +125,17 @@ https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#ur
                    root { :baseUri {:uri "https://{communityDomain}.force.com/{communityPath}", :raml-clj-parser.reader/uri-parameters defined_params}}
                    uriParam  { :uriParameters {:communityDomain {:displayName "Community Domain", :type "string"}, :communityPath {:displayName "Community Path", :type "string", :pattern "^[a-zA-Z0-9][-a-zA-Z0-9]*$", :minLength 1}}}]
 
-               (#'sut/valid-uri-parameters?  root uriParam) => true))
+               (#'sut/valid-uri-parameters?  uriParam) => true
+               (#'sut/all-parameters-defined-in-base-uri? (merge root uriParam)) => true))
 
 
        (fact "Negative case. no parameter specified in baseUri"
              (let [root { :baseUri {:uri "https://normal.url.with.out.parameters/",
-                                    :raml-clj-parser.reader/uri-parameters []}}
-                   uriParam  { :uriParameters {:communityDomain {:displayName "Community Domain", :type "string"}}}]
+                                    :raml-clj-parser.reader/uri-parameters []}
+                         :uriParameters {:communityDomain {:displayName "Community Domain", :type "string"}}}]
 
-               (#'sut/valid-uri-parameters?  root uriParam) => false))
-
+               (#'sut/all-parameters-defined-in-base-uri?  root) => false))
 
        (fact "The uriParameters CANNOT contain a key named version"
-             (let [root { :baseUri {:uri "https://normal.url.with.out.parameters/",
-                                    :raml-clj-parser.reader/uri-parameters ["version"]}}
-                   uriParam_contains_version_literal { :uriParameters {:version {:displayName "Community Domain", :type "string"}}}]
-               (#'sut/valid-uri-parameters? root uriParam_contains_version_literal) => false)))
+             (let [ uriParam_contains_version_literal { :uriParameters {:version {:displayName "Community Domain", :type "string"}}}]
+               (#'sut/valid-uri-parameters? uriParam_contains_version_literal) => false)))
