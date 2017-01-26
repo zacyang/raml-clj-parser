@@ -31,5 +31,6 @@
        (validator/is-valid? (core/read-raml ?raml)) => ?expect)
  ?raml                                                                  ?expect
  "test/resources/raml/v08/partial-example/parametermized-uri.raml"      true
- ;"test/resources/raml/v08/sample.raml"      true
+ "test/resources/raml/v08/sample.raml"                                  true
+ "test/resources/raml/v08/full-example/jukebox-api.raml"      true
  )

@@ -77,7 +77,7 @@
 (def media-types (s/pred valid-media-types? "Invalid media type please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"))
 (def schemas (s/pred valid-schemas? "Invalid schema, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#schemas"))
 (def uri-parameters (s/pred valid-uri-parameters? "Invalid parameters, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters"))
-
+(def any_key {s/Any s/Any})
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
   {(s/required-key :title)         s/Str
@@ -89,7 +89,10 @@
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
-   (s/optional-key :documentation) s/Str})
+   (s/optional-key :documentation) s/Str
+   (s/optional-key :resourceTypes) s/Any
+   s/Any s/Any
+   })
 
 (def mandatory_version_tag
   {(s/required-key :title)         s/Str
@@ -101,7 +104,9 @@
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
-   (s/optional-key :documentation) s/Str})
+   (s/optional-key :documentation) s/Str
+   (s/optional-key :resourceTypes) s/Any
+   s/Any s/Any})
 
 (def root
   (s/constrained
