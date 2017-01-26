@@ -140,3 +140,7 @@ https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#ur
        (fact "The uriParameters CANNOT contain a key named version"
              (let [ uriParam_contains_version_literal { :uriParameters {:version {:displayName "Community Domain", :type "string"}}}]
                (#'sut/valid-uri-parameters? uriParam_contains_version_literal) => false)))
+
+(facts "user document https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#user-documentation"
+
+       )

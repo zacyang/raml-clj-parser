@@ -77,12 +77,16 @@
 (def media-types (s/pred valid-media-types? "Invalid media type please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"))
 (def schemas (s/pred valid-schemas? "Invalid schema, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#schemas"))
 (def uri-parameters (s/pred valid-uri-parameters? "Invalid parameters, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters"))
-(def any_key {s/Any s/Any})
+(def raml-version (s/pred (fn str-or-int[i] (or (string? i) (number? i))) "Raml version need to be a string or a number"))
+
+(def ResourcePath (s/pred #( and (keyword? %)
+                            (str/starts-with? (name %) "/"))))
+
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
   {(s/required-key :title)         s/Str
    (s/required-key :baseUri)       uri
-   (s/required-key :raml-version)  s/Str
+   (s/required-key :raml-version)  raml-version
 
    (s/optional-key :mediaType)     media-types
    (s/optional-key :version)       s/Str
@@ -91,14 +95,15 @@
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
    (s/optional-key :documentation) s/Str
    (s/optional-key :resourceTypes) s/Any
-   s/Any s/Any
+   (s/optional-key :traits)        s/Any
+   ResourcePath                    s/Any
    })
 
 (def mandatory_version_tag
   {(s/required-key :title)         s/Str
    (s/required-key :baseUri)       uri
    (s/required-key :version)       s/Str
-   (s/required-key :raml-version)  s/Str
+   (s/required-key :raml-version)  raml-version
 
    (s/optional-key :mediaType)     media-types
    (s/optional-key :protocols)     protocols
@@ -106,7 +111,8 @@
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
    (s/optional-key :documentation) s/Str
    (s/optional-key :resourceTypes) s/Any
-   s/Any s/Any})
+   (s/optional-key :traits)        s/Any
+   ResourcePath                    s/Any})
 
 (def root
   (s/constrained
