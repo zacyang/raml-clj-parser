@@ -1,7 +1,7 @@
 (ns raml-clj-parser.tags
   (:require [clojure.string :as str]))
 
-(def ^:const TAG_NAME "!include")
+(def ^:const INCLUDE_TAG "!include")
 
 (defn is-raml-resource? [path]
   (str/ends-with? path ".raml"))

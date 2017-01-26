@@ -42,7 +42,7 @@
   "Creates a custom SafeConstructor that understands the given tag"
   [path]
   (let [yaml_ctor (SafeConstructor.)]
-    (register-tag-ctors tags/TAG_NAME (create-tag-constructor tags/TAG_NAME (partial  tags/include-tag-ctor-fn path) yaml_ctor) yaml_ctor)
+    (register-tag-ctors tags/INCLUDE_TAG (create-tag-constructor tags/INCLUDE_TAG (partial  tags/include-tag-ctor-fn path) yaml_ctor) yaml_ctor)
     (register-tag-ctors nil (create-tag-constructor nil  tags/unkown-tag-ctor-fn yaml_ctor) yaml_ctor)
     yaml_ctor))
 

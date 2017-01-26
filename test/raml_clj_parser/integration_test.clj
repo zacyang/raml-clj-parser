@@ -24,8 +24,13 @@
                                        ;(first schemas) =>  {:song {:path "jukebox-include-song.schema", :tag "!include"}}
        ))
 
+(fact "should get uri parameter"
+      (let [result (core/read-raml "test/resources/raml/v08/partial-example/parametermized-uri.raml")]
+        (get-in result [:baseUri :raml-clj-parser.reader/uri-parameters]) => ["communityDomain" "communityPath"]))
+
 (fact "just make sure the offical example can pass the validation"
-     (let [result (core/read-raml "test/resources/raml/v08/full-example/jukebox-api.raml")]
+      (let [result (core/read-raml "test/resources/raml/v08/full-example/jukebox-api.raml")]
+        ;; WILL FAIL AT THE MOMENT
        ;;will move to core after validation is done
      ;;  (validator/is-valid? result) => result)
      ))

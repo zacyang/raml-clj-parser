@@ -3,7 +3,7 @@
   (:require [raml-clj-parser.reader :as sut]
             [raml-clj-parser.yaml :as yaml]
             [raml-clj-parser.tags :as tags]
-            [midje.sweet :as midje :refer [fact => anything]]))
+            [midje.sweet :as midje :refer [facts fact => anything]]))
 
 (fact "should return converted key when parse sub url section"
       (let [java_map_with_slash_in_key
@@ -47,21 +47,21 @@
       (#'sut/is-valid-first-line?  "#%RAML 0.8 ") => true)
 
 (fact "should return parsed raml when include resource is raml"
-      (let [raml_include (tags/->RamlIncludeTag tags/TAG_NAME "test/resources/raml/v08" "small.raml"
+      (let [raml_include (tags/->RamlIncludeTag tags/INCLUDE_TAG "test/resources/raml/v08" "small.raml"
                                                 nil)]
 
-        (sut/->clj raml_include) => {:baseUri "http://jukebox.api.com", :raml-version "0.8", :title "Jukebox API", :version "v1"}))
+        (sut/->clj raml_include) => {:baseUri {:uri "http://jukebox.api.com", :raml-clj-parser.reader/uri-parameters []} , :raml-version "0.8", :title "Jukebox API", :version "v1"}))
 
 (fact "should return plain text when include resource is not raml"
       (let [raml_include (tags/include-tag-ctor-fn
                           "test/resources/raml/v08/full-example/"
-                          tags/TAG_NAME
+                          tags/INCLUDE_TAG
                           "jukebox-include-artist.schema")]
 
         (sut/->clj raml_include) =>  "{\n  \"type\": \"object\",\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"required\":false,\n  \"properties\": {\n    \"artistName\": {\n      \"type\": \"string\",\n      \"required\":true\n    },\n    \"description\": {\n      \"type\": \"string\",\n      \"required\": false\n    },\n    \"imageURL\": {\n      \"type\": \"string\",\n      \"required\": false\n    }\n  }\n}\n"))
 
 (fact "should return tag when original content is unavaiable"
-      (let [raml_include (tags/->RamlIncludeTag tags/TAG_NAME "test/resources/raml/v08" "anything" {:error "resource is not available"} )]
+      (let [raml_include (tags/->RamlIncludeTag tags/INCLUDE_TAG "test/resources/raml/v08" "anything" {:error "resource is not available"} )]
 
         (sut/->clj raml_include) =>  {:base_path "test/resources/raml/v08", :content {:error "resource is not available"}, :path "anything", :tag "!include"}))
 
@@ -70,3 +70,8 @@
 
 (fact "should return true for raml resources"
       (#'sut/is-raml-resource? "some.raml") => true)
+
+(facts "should create uri parameter type with parameter info, and register to the root"
+       (fact "should extract uri parameters to vec"
+             (#'sut/extract-uri-parameters "http://localhost/{id}/domain/{name}") => ["id" "name"]
+             (#'sut/extract-uri-parameters "http://localhost/domain/") => []))

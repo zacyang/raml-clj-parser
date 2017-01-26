@@ -48,13 +48,24 @@
     (get-resource-content file_content_path (:path node))
     ERR_FILE_NOT_EXISTS))
 
+(defn- extract-uri-parameters [uri]
+  (vec (re-seq #"(?<=\{).*?(?=\})" uri)))
+
+(defn- to-map [k v]
+  (let [raml_key   (to-clj-key k)
+        raml_value (->clj v)]
+    (if (= k "baseUri")
+      [raml_key { :uri                  raml_value
+                 ::uri-parameters (extract-uri-parameters v)}]
+      [raml_key raml_value])))
+
 (extend-protocol RamlReader
 
   java.util.LinkedHashMap
   (->clj [node]
     (into {}
           (for [[k v] node]
-            [(to-clj-key k) (->clj v)])))
+            (to-map k v))))
 
   java.util.LinkedHashSet
   (->clj [node]
@@ -74,7 +85,6 @@
     (if (has-error? node)
       node
       (get-external-resource node))))
-
 
 (defn- is-valid-first-line? [line]
   (.matches line REGEX_FIRST_LINE))

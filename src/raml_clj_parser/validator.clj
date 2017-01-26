@@ -5,6 +5,7 @@
             [clojure.java.io :as io]
             [clojure.string :as str]
             [schema.core :as s]))
+(defrecord RamlError [type desc path])
 
 (def ^:const VALID_YAML_TYPES ["text/yaml"
                                "text/x-yaml"
@@ -57,18 +58,33 @@
 (defn- valid-schemas? [c]
   (and
    (vector? c)
-   (not (some (fn has-error?[i] (contains? i :error)) c))))
+   (not-any? (fn has-error?[i] (contains? i :error)) c)))
+
+(defn- all-param-defined-in-base [root m]
+  (let [uriParameters_str (map name (keys (:uriParameters m)))
+        defined_param     (get-in root [:baseUri :raml-clj-parser.reader/uri-parameters])]
+    (nil? (first (data/diff uriParameters_str defined_param)))))
+
+(defn- valid-uri-parameters? [root m]
+  (and
+   (instance? clojure.lang.APersistentMap m)
+   (all-param-defined-in-base root m)
+   (nil? (:version (:uriParameters m)))))
 
 (def protocols (s/pred valid-protocols?  "protocol only support http and/or https"))
 (def media-types (s/pred valid-media-types? "Invalid media type please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#default-media-type"))
+(def schemas (s/pred valid-schemas? "Invalid schema, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#schemas"))
+(def uri-parameters (s/pred valid-uri-parameters? "Invalid parameters, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters"))
+
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
   {(s/required-key :title)         s/Str
    (s/required-key :baseUri)       uri
 
+   (s/optional-key :mediaType)     media-types
    (s/optional-key :version)       s/Str
    (s/optional-key :protocols)     protocols
-   (s/optional-key :schemas)       s/Str
+   (s/optional-key :schemas)       schemas
    (s/optional-key :documentation) s/Str})
 
 (def mandatory_version_tag
@@ -76,8 +92,9 @@
    (s/required-key :baseUri)       uri
    (s/required-key :version)       s/Str
 
+   (s/optional-key :mediaType)     media-types
    (s/optional-key :protocols)     protocols
-   (s/optional-key :schemas)       s/Str
+   (s/optional-key :schemas)       schemas
    (s/optional-key :documentation) s/Str})
 
 (def root

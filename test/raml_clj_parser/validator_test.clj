@@ -119,9 +119,27 @@ https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#ur
         ?schema                                 ?expect
 
         [{:schema-name "content from the !include tag"}]         true
-        [{:error "resource is not available"}]      false)
+        [{:error "resource is not available"}]      false))
 
-       (fact "Schema could be name: schema-content"
-             ;(#'sut/vaid-schemas? {:song "{\n  \"type\": \"object\",\n  \"$schema\": \"http://json-schema.org/draft-03/schema\",\n  \"id\": \"http://jsonschema.net\",\n  \"required\": true,\n  \"properties\": {\n    \"songId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    },\n    \"songTitle\": {\n      \"type\": \"string\",\n      \"required\": true\n    },\n    \"albumId\": {\n      \"type\": \"string\",\n      \"required\": true,\n      \"minLength\": 36,\n      \"maxLength\": 36\n    }\n  }\n}\n"}) => true
-             )
-       )
+(facts "uri parameters https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters"
+       (fact "The uriParameters property MUST be a map in which each key MUST be the name of the URI parameter as defined in the baseUri property."
+             (let [defined_params ["communityDomain" "communityPath"]
+                   root { :baseUri {:uri "https://{communityDomain}.force.com/{communityPath}", :raml-clj-parser.reader/uri-parameters defined_params}}
+                   uriParam  { :uriParameters {:communityDomain {:displayName "Community Domain", :type "string"}, :communityPath {:displayName "Community Path", :type "string", :pattern "^[a-zA-Z0-9][-a-zA-Z0-9]*$", :minLength 1}}}]
+
+               (#'sut/valid-uri-parameters?  root uriParam) => true))
+
+
+       (fact "Negative case. no parameter specified in baseUri"
+             (let [root { :baseUri {:uri "https://normal.url.with.out.parameters/",
+                                    :raml-clj-parser.reader/uri-parameters []}}
+                   uriParam  { :uriParameters {:communityDomain {:displayName "Community Domain", :type "string"}}}]
+
+               (#'sut/valid-uri-parameters?  root uriParam) => false))
+
+
+       (fact "The uriParameters CANNOT contain a key named version"
+             (let [root { :baseUri {:uri "https://normal.url.with.out.parameters/",
+                                    :raml-clj-parser.reader/uri-parameters ["version"]}}
+                   uriParam_contains_version_literal { :uriParameters {:version {:displayName "Community Domain", :type "string"}}}]
+               (#'sut/valid-uri-parameters? root uriParam_contains_version_literal) => false)))
