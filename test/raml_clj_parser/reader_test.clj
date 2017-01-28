@@ -8,8 +8,23 @@
 (fact "should return converted key when parse sub url section"
       (let [java_map_with_slash_in_key
             (doto (new java.util.LinkedHashMap)
-              (.put "/original_key" "value")) ]
-        (sut/->clj java_map_with_slash_in_key) => {://original_key "value"}))
+              (.put "baseUri" "http://{some-parameters}/domain")) ]
+        (sut/->clj java_map_with_slash_in_key) => {:baseUri {:uri "http://{some-parameters}/domain"
+                                                                    :raml-clj-parser.reader/uri-parameters ["some-parameters"]}}))
+
+(fact "should return parse url with paramters, and merge the rest of its original content"
+      (let [java_map_content_in_resource
+            (doto (new java.util.LinkedHashMap)
+              (.put "displayname" "User")
+              (.put "description" "blas"))
+            java_map_with_slash_in_key
+            (doto (new java.util.LinkedHashMap)
+              (.put "/original_key" java_map_content_in_resource)) ]
+        (sut/->clj java_map_with_slash_in_key)
+        => {://original_key {:uri                                   "/original_key"
+                             :raml-clj-parser.reader/uri-parameters []
+                             :displayname                           "User"
+                             :description                           "blas"}}))
 
 (fact "should convert original key string to clj keyword"
       (let [java_map_with_slash_in_key

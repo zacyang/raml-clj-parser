@@ -86,6 +86,10 @@
 (def documentation [{(s/required-key :title)   s/Str
                      (s/required-key :content) s/Str}])
 
+(def rest_resource {(s/optional-key :displayName)   s/Str
+                    (s/optional-key :description)   s/Str
+                    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)})
+
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
   {(s/required-key :title)         s/Str

@@ -53,13 +53,24 @@
 (defn- extract-uri-parameters [uri]
   (vec (re-seq #"(?<=\{).*?(?=\})" uri)))
 
+(defn- is-rest-resource-key? [k]
+  (let [keyname (name k)]
+    (or
+     (= keyname "baseUri")
+     (str/starts-with? keyname "/"))))
+
 (defn- to-map [k v]
   (let [raml_key   (to-clj-key k)
         raml_value (->clj v)]
-    (if (= k "baseUri")
-      [raml_key { :uri                  raml_value
-                 ::uri-parameters (extract-uri-parameters v)}]
-      [raml_key raml_value])))
+    (cond (= k "baseUri")
+          [raml_key { :uri            raml_value
+                     ::uri-parameters (extract-uri-parameters v)}]
+          (str/starts-with? k "/")
+          [raml_key (merge  { :uri            k
+                             ::uri-parameters (extract-uri-parameters k)
+                             } raml_value)]
+          :default
+          [raml_key raml_value])))
 
 (extend-protocol RamlReader
 

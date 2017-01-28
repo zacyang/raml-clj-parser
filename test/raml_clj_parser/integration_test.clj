@@ -31,6 +31,7 @@
  ?raml                                                                  ?expect
  "test/resources/raml/v08/partial-example/parametermized-uri.raml"      true
  "test/resources/raml/v08/partial-example/document.raml"                true
+ "test/resources/raml/v08/partial-example/resource-with-uri-parameters.raml" true
  "test/resources/raml/v08/sample.raml"                                  true
  "test/resources/raml/v08/full-example/jukebox-api.raml"                true
 
