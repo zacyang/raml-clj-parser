@@ -80,7 +80,11 @@
 (def raml-version (s/pred (fn str-or-int[i] (or (string? i) (number? i))) "Raml version need to be a string or a number"))
 
 (def ResourcePath (s/pred #( and (keyword? %)
-                            (str/starts-with? (name %) "/"))))
+                            (str/starts-with? (name %) "/"))
+                          "Resource must starts with /") )
+
+(def documentation [{(s/required-key :title)   s/Str
+                     (s/required-key :content) s/Str}])
 
 ;;For the sake of readability keep it duplicate
 (def optional_version_tag
@@ -93,7 +97,7 @@
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
-   (s/optional-key :documentation) s/Str
+   (s/optional-key :documentation) documentation
    (s/optional-key :resourceTypes) s/Any
    (s/optional-key :traits)        s/Any
    ResourcePath                    s/Any
@@ -109,7 +113,7 @@
    (s/optional-key :protocols)     protocols
    (s/optional-key :schemas)       schemas
    (s/optional-key :uriParameters) (s/pred valid-uri-parameters?)
-   (s/optional-key :documentation) s/Str
+   (s/optional-key :documentation) documentation
    (s/optional-key :resourceTypes) s/Any
    (s/optional-key :traits)        s/Any
    ResourcePath                    s/Any})

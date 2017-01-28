@@ -2,8 +2,10 @@
   (:refer-clojure :exclude [read])
   (:require [raml-clj-parser.yaml :as yaml ]
             [clojure.string :as str]
-            [raml-clj-parser.util :as util])
-  (:import [raml_clj_parser.tags RamlIncludeTag]
+            [raml-clj-parser.util :as util]
+            [raml-clj-parser.tags :as tags])
+  (:import [raml_clj_parser.tags RamlIncludeTag
+            RamlError]
            [java.io
             BufferedReader
             StringReader]))
@@ -14,8 +16,8 @@
   (->clj [node]))
 
 (def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
-(def ^:const ERR_INVALID_FIRST_LINE {:error "Invalid first line, first line should be #%RAML 0.8"})
-(def ^:const ERR_FILE_NOT_EXISTS  {:error  "resource is not available"})
+(def ^:const ERR_INVALID_FIRST_LINE (tags/->RamlError  "Invalid first line, first line should be #%RAML 0.8"))
+(def ^:const ERR_FILE_NOT_EXISTS  (tags/->RamlError   "Resource is not available"))
 
 (defn- is-url-path? [i]
   (str/starts-with? i "/"))

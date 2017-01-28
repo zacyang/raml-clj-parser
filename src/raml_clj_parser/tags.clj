@@ -23,3 +23,5 @@
 (defn unkown-tag-ctor-fn
   [tag value]
   (->UnkownTag tag value))
+
+(defrecord RamlError [error])
