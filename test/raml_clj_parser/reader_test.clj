@@ -19,10 +19,10 @@
               (.put "description" "blas"))
             java_map_with_slash_in_key
             (doto (new java.util.LinkedHashMap)
-              (.put "/original_key" java_map_content_in_resource)) ]
+              (.put "/{parameter}" java_map_content_in_resource)) ]
         (sut/->clj java_map_with_slash_in_key)
-        => {://original_key {:uri                                   "/original_key"
-                             :raml-clj-parser.reader/uri-parameters []
+        => {"/{parameter}" {:uri                                   "/{parameter}"
+                             :raml-clj-parser.reader/uri-parameters ["parameter"]
                              :displayname                           "User"
                              :description                           "blas"}}))
 

@@ -25,3 +25,5 @@
   (->UnkownTag tag value))
 
 (defrecord RamlError [error])
+
+;;(defrecord RamlResource [uri displayName description ^RamlResource resource])

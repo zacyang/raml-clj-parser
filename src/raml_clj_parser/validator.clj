@@ -79,8 +79,8 @@
 (def uri-parameters (s/pred valid-uri-parameters? "Invalid parameters, please refer to https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#uri-parameters"))
 (def raml-version (s/pred (fn str-or-int[i] (or (string? i) (number? i))) "Raml version need to be a string or a number"))
 
-(def ResourcePath (s/pred #( and (keyword? %)
-                            (str/starts-with? (name %) "/"))
+(def ResourcePath (s/pred #( and (string? %)
+                            (str/starts-with?  % "/"))
                           "Resource must starts with /") )
 
 (def documentation [{(s/required-key :title)   s/Str

@@ -30,10 +30,10 @@
        (fact "should return original data when it's valid"
              (#'sut/is-valid-root-elements? MIN_VALID_DATA) => MIN_VALID_DATA)
 
-       (fact "should return original data when contains extra keys, since it could be url resource"
-             (let [with_extra_key (merge MIN_VALID_DATA {://exteral-key "bla"}) ]
+       (fact "should raise eror  when contains extra keys"
+             (let [with_extra_key (merge MIN_VALID_DATA {:exteral-key "bla"})]
                (#'sut/is-valid-root-elements? with_extra_key)
-               => with_extra_key) )
+               => (contains {:type :schema.core/error})))
 
        (fact "API title must presents and contains value"
              (#'sut/is-valid-root-elements?(dissoc MIN_VALID_DATA :title))
@@ -141,6 +141,12 @@ https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#ur
              (let [ uriParam_contains_version_literal { :uriParameters {:version {:displayName "Community Domain", :type "string"}}}]
                (#'sut/valid-uri-parameters? uriParam_contains_version_literal) => false)))
 
-(facts "user document https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#user-documentation"
+(facts "user document https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#user-documentation")
 
+(facts "Resource and nested resource. https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md#resources-and-nested-resources"
+       ;; (let [resource
+       ;;       {:uri "/songs", :raml-clj-parser.reader/uri-parameters [], :type {:collection {:exampleCollection "[\n  {\n    \"songId\": \"550e8400-e29b-41d4-a716-446655440000\",\n    \"songTitle\": \"Get Lucky\"\n  },\n  {\n    \"songId\": \"550e8400-e29b-41d4-a716-446655440111\",\n    \"songTitle\": \"Loose yourself to dance\"\n  },\n  {\n    \"songId\": \"550e8400-e29b-41d4-a716-446655440222\",\n    \"songTitle\": \"Gio sorgio by Morodera\"\n  }\n]\n", :exampleItem "{\n  \"songId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"songTitle\": \"Get Lucky\",\n  \"albumId\": \"183100e3-0e2b-4404-a716-66104d440550\"\n}\n"}}, :get {:is [{:searchable {:description "with valid searchable fields: songTitle", :example "[\"songTitle\", \"Get L\", \"like\"]"}} {:orderable {:fieldsList "songTitle"}} "pageable"]}, ://{songId} {:uri "/{songId}", :raml-clj-parser.reader/uri-parameters ["songId"], :type {:collection-item {:exampleItem "{\n  \"songId\": \"550e8400-e29b-41d4-a716-446655440000\",\n  \"songTitle\": \"Get Lucky\",\n  \"duration\": \"6:07\",\n  \"artist\": {\n    \"artistId\": \"110e8300-e32b-41d4-a716-664400445500\",\n    \"artistName\": \"Daft Punk\",\n    \"imageURL\": \"http://travelhymns.com/wp-content/uploads/2013/06/random-access-memories1.jpg\"\n  },\n  \"album\": {\n    \"albumId\": \"183100e3-0e2b-4404-a716-66104d440550\",\n    \"albumName\": \"Random Access Memories\",\n    \"imageURL\": \"http://upload.wikimedia.org/wikipedia/en/a/a7/Random_Access_Memories.jpg\"\n  }\n}\n"}}, ://file-content {:uri "/file-content", :raml-clj-parser.reader/uri-parameters [], :description "The file to be reproduced by the client", :get {:description "Get the file content", :responses {"200\n" {:body {:application/octet-stream {:example "we dont need the real big dumb mp3 file, you know what i am testing....\n"}}}}}, :post {:description "Enters the file content for an existing song entity.\n\nThe song needs to be created for the `/songs/{songId}/file-content` to exist.\nYou can use this second resource to get and post the file to reproduce.\n\nUse the \"binary/octet-stream\" content type to specify the content from any consumer (excepting web-browsers).\nUse the \"multipart-form/data\" content type to upload a file which content will become the file-content\n", :body {:application/octet-stream nil, :multipart/form-data {:formParameters {:file {:description "The file to be uploaded", :required true, :type "file"}}}}}}}}]
+       ;;   ;(s/validate ResourcePath ://songs ) => ://songs
+
+       ;;   )
        )
