@@ -26,6 +26,24 @@
         (get-in result [:baseUri :raml-clj-parser.reader/uri-parameters]) => ["communityDomain" "communityPath"]))
 
 (tabular
+ (fact "should get expects parts"
+       (get-in (validator/validate (core/read-raml ?raml)) ?path-to) => ?expect)
+ ?raml  ?path-to                           ?expect
+ "test/resources/raml/v08/partial-example/resource-with-uri-parameters.raml"
+ ["/users" "/{userId}"]
+ {:displayName "User", :uri "/{userId}", :uriParameters {:userId {:displayName "User ID", :type "integer"}}, :raml-clj-parser.reader/uri-parameters ["userId"]}
+;non explicity declare of uri parameter in resource path
+ "test/resources/raml/v08/partial-example/resource-with-implicity-uri-parameters.raml"
+  ["/files"  "/folder_{folderId}-file_{fileId}"]
+  {:description "An item in the collection of all files", :uri "/folder_{folderId}-file_{fileId}", :raml-clj-parser.reader/uri-parameters ["folderId" "fileId"]}
+
+  "test/resources/raml/v08/partial-example/resource-with-implicity-uri-parameters.raml"
+  ["/users{mediaTypeExtension}"]
+  {:uri "/users{mediaTypeExtension}", :uriParameters {:mediaTypeExtension {:description "Use .json to specify application/json or .xml to specify text/xml", :enum [".json" ".xml"]}}, :raml-clj-parser.reader/uri-parameters ["mediaTypeExtension"]})
+
+
+
+(tabular
  (fact "just make sure the offical example can pass the validation"
        (validator/is-valid? (core/read-raml ?raml)) => ?expect)
  ?raml                                                                  ?expect
