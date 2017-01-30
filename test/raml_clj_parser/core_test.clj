@@ -2,7 +2,8 @@
   (:require [raml-clj-parser.core  :as core]
             [clojure.java.io :as io]
             [raml-clj-parser.reader :as reader]
-            [raml-clj-parser.util :as util])
+            [raml-clj-parser.util :as util]
+            [raml-clj-parser.validator :as validator])
   (:use midje.sweet))
 
 (fact "should parse file when file is exist"
@@ -12,7 +13,7 @@
        (reader/read ..raml_file_content.. ..base_path..) => ..result..))
 
 (fact "should return error infor when file is not exist"
-      (core/read-raml ..file_path..) => {:error "file not exist"}
+      (core/read-raml ..file_path..) => reader/ERR_FILE_NOT_EXISTS
       (provided
        (#'util/when-exist ..file_path..) => nil))
 

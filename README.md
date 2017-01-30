@@ -10,7 +10,7 @@ It also provides validtion according to [raml spec v08](https://github.com/raml-
 Read raml file into clojure map
 
 ```clojure
-(require [raml-clj-parser.core :as raml])
+(require '[raml-clj-parser.core :as raml])
 
 (raml/read-raml "resource/sample.raml")
 
@@ -22,7 +22,7 @@ Validate raml content [optional]
 
 The validation is build on Schema for more informatino you could refer to https://github.com/plumatic/schema
 ```clojure
-(require [raml-clj-parser.core :as raml])
+(require '[raml-clj-parser.core :as raml])
 
 ;;valid raml file
 (let [raml_content (raml/read-raml "resource/valid.raml")]
@@ -44,7 +44,7 @@ The validation is build on Schema for more informatino you could refer to https:
 
 Util fn (WIP)
 ```clojure
-;;for a parsed raml file 
+;;for a parsed raml file
 (get-abs-uri raml ["/sub_uri" "/sub_uri"])
 ;;=> will return a map contains the leaf resources's information including uri parameter and header
 
