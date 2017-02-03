@@ -5,6 +5,12 @@ It is able to parse a given raml file into clojure map, including all the includ
 
 It also provides validtion according to [raml spec v08](https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md)
 
+## Installation
+
+Add the following dependency to your `project.clj` file:
+
+    [raml-clj-parser "0.1.0"]
+
 ## Usage
 
 Read raml file into clojure map
@@ -17,6 +23,9 @@ Read raml file into clojure map
 ;; => {:raml-version "0.8", :title "Jukebox API", :baseUri {:uri "http://jukebox.api.com", :raml-clj-parser.reader/uri-parameters []}, :version "v1"}
 
 ```
+It will convert all the raml tag into clojure keywords and all the routes into string.
+And you can use regular clojure fn to navigate though the map and retrieve associated values.
+
 
 Validate raml content [optional]
 
