@@ -1,4 +1,4 @@
-(defproject raml-clj-parser "0.1.0"
+(defproject raml-clj-parser "0.1.1-SNAPSHOT"
   :description "A clojure implementation of RAML parser"
   :url "https://github.com/zacyang/raml-clj-parser"
   :license {:name "Eclipse Public License"
