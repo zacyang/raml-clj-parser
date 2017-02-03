@@ -3,6 +3,8 @@
   :url "https://github.com/zacyang/raml-clj-parser"
   :license {:name "Eclipse Public License"
             :url  "http://www.eclipse.org/legal/epl-v10.html"}
+  :scm {:name "git"
+        :url "https://github.com/zacyang/raml-clj-parser"}
   :author "Yang Yang"
 
   :dependencies [[org.clojure/clojure "1.8.0"]
