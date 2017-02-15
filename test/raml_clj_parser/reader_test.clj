@@ -47,7 +47,8 @@
 
       (provided
        (#'sut/get-raml-version ..raml_with_invalid_first_line..)
-       => sut/ERR_INVALID_FIRST_LINE))
+       => sut/ERR_INVALID_FIRST_LINE
+       (yaml/load ..raml_with_invalid_first_line.. ..base_path..) => ..raw_yaml..))
 
 (fact "should return false when first is invalid"
       ;;The first line of a RAML API definition document MUST

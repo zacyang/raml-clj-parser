@@ -114,10 +114,13 @@
 
 (defn- load-raml-content [content base_path]
   (let [raw_yaml (yaml/load content base_path)]
-    (->clj raw_yaml)))
+    (if (:raml-clj-parser.yaml/error raw_yaml)
+      raw_yaml
+      (->clj raw_yaml))))
 
 (defn read [content base_path]
-  (let [raml_version (get-raml-version content)]
-    (if-not (= ERR_INVALID_FIRST_LINE raml_version)
-      (generate-edn raml_version (load-raml-content content base_path))
-      ERR_INVALID_FIRST_LINE)))
+  (let [raml_version (get-raml-version content)
+        yaml_content (load-raml-content content base_path)]
+    (cond (= ERR_INVALID_FIRST_LINE raml_version) ERR_INVALID_FIRST_LINE
+          (:raml-clj-parser.yaml/error yaml_content)             yaml_content
+          :default                                (generate-edn raml_version yaml_content))))

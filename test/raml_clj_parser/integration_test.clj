@@ -53,5 +53,10 @@
  "test/resources/raml/v08/sample.raml"                                  true
  "test/resources/raml/v08/full-example/jukebox-api.raml"                true
 
- "test/resources/raml/v08/invalid-example/extra-keys-jukebox-api.raml"  false
-)
+ "test/resources/raml/v08/invalid-example/extra-keys-jukebox-api.raml"  false)
+
+(fact "invalid YAML format"
+      (fact "should return error info"
+            (let [result (core/read-raml "test/resources/yaml/invalid/error.yaml")]
+              result => {:raml-clj-parser.yaml/error "Invalid YAML format" :raml-clj-parser.yaml/reason "mapping values are not allowed here\n in 'string', line 6, column 6:\n    ajdsf:\n         ^\n"}
+              )))

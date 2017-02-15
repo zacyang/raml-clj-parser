@@ -11,7 +11,6 @@
 (defn validate [raml]
   (validator/validate raml))
 
-;;FIXME: walk should be able do the same thing
 (defn- extract [ctor-fn raml path_keys]
   (if (empty? path_keys) ""
       (let [path     (first path_keys)

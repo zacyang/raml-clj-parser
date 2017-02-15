@@ -8,7 +8,9 @@
             BaseConstructor]
            [org.yaml.snakeyaml.nodes
             ScalarNode
-            Tag]))
+            Tag
+            ]
+           [org.yaml.snakeyaml.error YAMLException]))
 
 (defn call-method
   [klass method-name params obj & args]
@@ -51,4 +53,7 @@
 
 (defn load
   [content path]
-  (.load (create-yaml path) content))
+  (try
+    (.load (create-yaml path) content)
+    (catch YAMLException e {::error "Invalid YAML format"
+                            ::reason (.getMessage e)})))
