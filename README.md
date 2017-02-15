@@ -5,11 +5,15 @@ It is able to parse a given raml file into clojure map, including all the includ
 
 It also provides validtion according to [raml spec v08](https://github.com/raml-org/raml-spec/blob/master/versions/raml-08/raml-08.md)
 
+## Version
+
+[![Clojars Project](https://img.shields.io/clojars/v/raml-clj-parser.svg)](https://clojars.org/raml-clj-parser)
+
 ## Installation
 
 Add the following dependency to your `project.clj` file:
 
-    [raml-clj-parser "0.1.0"]
+    [raml-clj-parser "0.1.1-SNAPSHOT"]
 
 ## Usage
 
@@ -58,11 +62,6 @@ Util fn (WIP)
 ;;=> will return a map contains the leaf resources's information including uri parameter and header
 
 ```
-
-
-## CI
-
-[![Clojars Project](https://img.shields.io/clojars/v/raml-clj-parser.svg)](https://clojars.org/raml-clj-parser)
 
 ## License
 
