@@ -43,7 +43,7 @@
 
 (fact "should return error inform when first line is not raml"
       (sut/read ..raml_with_invalid_first_line.. ..base_path..)
-      => {:error "Invalid first line, first line should be #%RAML 0.8"}
+      => {:error "Invalid first line, first line should be #%RAML 0.8 or #%RAML 1.0"}
 
       (provided
        (#'sut/get-raml-version ..raml_with_invalid_first_line..)

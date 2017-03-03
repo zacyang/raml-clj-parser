@@ -15,8 +15,8 @@
 (defprotocol RamlReader
   (->clj [node]))
 
-(def ^:const REGEX_FIRST_LINE "^#%RAML\\s0\\.\\d(\\s+)?$")
-(def ^:const ERR_INVALID_FIRST_LINE (tags/->RamlError  "Invalid first line, first line should be #%RAML 0.8"))
+(def ^:const REGEX_FIRST_LINE "^#%RAML\\s(1\\.0|0\\.8)(\\s+)?$")
+(def ^:const ERR_INVALID_FIRST_LINE (tags/->RamlError  "Invalid first line, first line should be #%RAML 0.8 or #%RAML 1.0"))
 (def ^:const ERR_FILE_NOT_EXISTS  (tags/->RamlError   "Resource is not available"))
 
 (defn- is-url-path? [i]
