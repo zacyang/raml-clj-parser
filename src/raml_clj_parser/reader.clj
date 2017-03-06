@@ -30,7 +30,7 @@
 (defn- to-clj-key [key]
   (cond (keyword? key) key
         (string? key)  (keyword (get-valid-key key))
-        :default       (prn-str key)))
+        :default       (str/trim (prn-str key))))
 
 (defn is-raml-resource? [path]
   (str/ends-with? path ".raml"))

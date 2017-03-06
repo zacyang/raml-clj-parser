@@ -10,7 +10,16 @@
             (doto (new java.util.LinkedHashMap)
               (.put "baseUri" "http://{some-parameters}/domain")) ]
         (sut/->clj java_map_with_slash_in_key) => {:baseUri {:uri "http://{some-parameters}/domain"
-                                                                    :raml-clj-parser.reader/uri-parameters ["some-parameters"]}}))
+                                                             :raml-clj-parser.reader/uri-parameters ["some-parameters"]}}))
+
+(fact "should trim key word"
+      (let [description
+            (doto (new java.util.LinkedHashMap)
+              (.put "description" "blas"))
+            java_map_with_extra_new_line_mark
+            (doto (new java.util.LinkedHashMap)
+              (.put 201 description)) ]
+        (sut/->clj java_map_with_extra_new_line_mark) => {"201" {:description                           "blas"}}))
 
 (fact "should return parse url with paramters, and merge the rest of its original content"
       (let [java_map_content_in_resource
@@ -23,8 +32,8 @@
         (sut/->clj java_map_with_slash_in_key)
         => {"/{parameter}" {:uri                                   "/{parameter}"
                              :raml-clj-parser.reader/uri-parameters ["parameter"]
-                             :displayname                           "User"
-                             :description                           "blas"}}))
+                            :displayname                           "User"
+                            :description                           "blas"}}))
 
 (fact "should convert original key string to clj keyword"
       (let [java_map_with_slash_in_key
